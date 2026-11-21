@@ -73,7 +73,7 @@ export default async function RoomPage({
     members.find((member) => member.user_id === room.host_id)?.full_name ??
     "the host";
   const serverNow = new Date().toISOString();
-  const watching = rounds.some((round) => round.phase !== "closed");
+  const refreshSeconds = latest?.phase === "closed" ? 60 : 15;
 
   const readyPanel = (
     <section className="mt-6 rounded-2xl border border-divider p-5">
@@ -265,6 +265,11 @@ export default async function RoomPage({
                 <p className="rounded-lg bg-white/10 px-3 py-2 text-sm text-mint">
                   You left this session. Your check-in stays open.
                 </p>
+              ) : !liveRound.me ? (
+                <p className="rounded-lg bg-white/10 px-3 py-2 text-sm text-mint">
+                  You joined after this round started. You can join the next
+                  round.
+                </p>
               ) : null}
             </div>
           </section>
@@ -306,7 +311,7 @@ export default async function RoomPage({
 
         {latestCheckin ? readyPanel : null}
 
-        {watching ? <AutoRefresh seconds={15} /> : null}
+        <AutoRefresh seconds={refreshSeconds} />
       </main>
     </>
   );

@@ -12,18 +12,24 @@ export function Countdown({
   checkinDeadline: string;
   serverNow: string;
 }) {
-  const [now, setNow] = useState(() => Date.parse(serverNow));
+  const serverNowMs = Date.parse(serverNow);
+  // Elapsed time comes from a monotonic client clock, so a skewed or changed
+  // system clock cannot move the shared deadline. The absolute client clock is
+  // never used for room state.
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
-    const tick = () => setNow(Date.now());
+    const started = performance.now();
+    const tick = () => setElapsed(performance.now() - started);
     const kick = setTimeout(tick, 0);
     const timer = setInterval(tick, 1000);
     return () => {
       clearTimeout(kick);
       clearInterval(timer);
     };
-  }, []);
+  }, [serverNowMs]);
 
+  const now = serverNowMs + elapsed;
   const phase = phaseFor(deadline, checkinDeadline, now);
   const remaining = Math.max(0, Date.parse(deadline) - now);
 

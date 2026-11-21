@@ -65,8 +65,8 @@ export default async function RegisterPage({
               className={fieldClass}
               name="username"
               autoComplete="username"
-              pattern="[a-z0-9_]{3,24}"
-              title="3–24 lowercase letters, numbers or underscores"
+              pattern="[A-Za-z0-9_]{3,24}"
+              title="3–24 letters, numbers or underscores"
               required
             />
           </label>

@@ -88,6 +88,7 @@ export async function startRoundAction(
 
   if (error) return { error: error.message };
 
+  revalidatePath("/rooms");
   revalidatePath(`/rooms/${roomId}`);
   return {};
 }

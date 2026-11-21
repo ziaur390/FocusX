@@ -31,6 +31,7 @@ waiting ──(host starts, 2 ready)──▶ studying ──(deadline)──▶
 - `closed`: read-only history. A missing outcome stays visible as **No check-in**.
 - Leaving sets `round_members.left_at`. It never shortens the other member's deadline and never closes the leaver's check-in.
 - Starting a new round is allowed after the previous deadline, even while earlier check-ins are still open. Old rounds stay on the page until their window closes, then remain in the list as history.
+- A member who joins after a round started is not added to that round's roster. They see the live room and wait for the next round instead of getting a check-in form they cannot submit.
 
 ## 3. Who can read and change what
 
@@ -173,7 +174,7 @@ npx playwright install chromium
 node harness/e2e/fx-001.mjs
 ```
 
-The script uses installed Google Chrome (`channel: "chrome"`); if you use the downloaded Chromium instead, remove the `channel` option. It rewrites the latest room deadline to 20 seconds once, so the check-in window is testable without waiting 10 minutes. It prints `PASS`/`FAIL` per check and saves screenshots to `harness/evidence/`. Last run: 23/23 checks passed; see [the evidence record](../harness/evidence/FX-001.md) for the full table.
+The script uses installed Google Chrome (`channel: "chrome"`); if you use the downloaded Chromium instead, remove the `channel` option. It rewrites the latest room deadline to 20 seconds once, so the check-in window is testable without waiting 10 minutes. It prints `PASS`/`FAIL` per check and saves screenshots to `harness/evidence/`. Last run: 26/26 checks passed; see [the evidence record](../harness/evidence/FX-001.md) for the full table.
 
 ## 10. Known limits and next tasks
 
@@ -182,7 +183,7 @@ The script uses installed Google Chrome (`channel: "chrome"`); if you use the do
 | Invite codes do not expire and cannot be revoked; no rate limiting on joins | FX-004 (persistent circles and outside invitations) |
 | Pairing is a fixed cyclic offset; no rotation across rounds, no absent-reviewer fallback | FX-006 (larger-circle accountability) |
 | No personal profile page, dashboard or private history yet | FX-003 |
-| No realtime push; the room refreshes every 15 seconds and on actions | Acceptable for R0; revisit when rooms grow |
+| No realtime push; the room polls every 15 seconds while setting up, studying or checking in, every 60 seconds once a round is closed, and refreshes on actions | Acceptable for R0; revisit when rooms grow |
 | The 24-hour check-in window was verified by moving the deadline in the local database, not by waiting a day | Repeat on the preview if needed |
 | Local email confirmations are disabled; hosted environments must confirm accounts before signing in | Environment setup |
 | No Vercel preview from this environment; CI runs on the pull request | Zia connects Vercel and the development Supabase project |

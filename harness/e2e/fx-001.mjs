@@ -189,17 +189,18 @@ try {
   console.log("\n# Goals, ready-up, shared round");
   await setGoal(alice, "Solve 15 Physics MCQs and review three mistakes");
   await setGoal(bob, "Revise 20 biology flashcards and two past-paper items");
-  await alice.reload();
-  await waitText(alice, "2 of 2 ready");
+  // No manual reload: the waiting room has to poll ready state on its own.
+  await waitText(alice, "2 of 2 ready", 35000);
   check("both members have a goal and ready state", true);
 
   const startButton = alice.getByRole("button", { name: "Start round 1" });
   check("host start is enabled", await startButton.isEnabled());
   await startButton.click();
+  await waitText(alice, "Studying together", 20000);
+  await waitText(bob, "Studying together", 30000);
+  check("both members see the started round without a manual reload", true);
   await alice.reload();
   await bob.reload();
-  await waitText(alice, "Studying together");
-  await waitText(bob, "Studying together");
 
   const aliceRemaining = await countdownSeconds(alice);
   const bobRemaining = await countdownSeconds(bob);
@@ -237,6 +238,9 @@ try {
   await waitText(alice, "Studying together");
   await waitText(alice, "Round over · check in", 40000);
   check("the countdown reaches the shared deadline", true);
+  // No manual reload: the room polls and swaps in the check-in form itself.
+  await waitText(alice, "Your check-in", 30000);
+  check("check-in opens without a manual reload", true);
   await alice.reload();
   await bob.reload();
   await waitText(alice, "Your check-in");
@@ -380,12 +384,10 @@ try {
   await waitText(alice, "Next round");
   await setGoal(alice, "Rewrite the two weakest Physics formulas");
   await setGoal(bob, "Review the missed biology flashcards");
-  await alice.reload();
-  await waitText(alice, "2 of 2 ready");
+  await waitText(alice, "2 of 2 ready", 35000);
   await alice.getByRole("button", { name: "Start round 2" }).click();
-  await alice.reload();
-  await bob.reload();
-  await waitText(bob, "Studying together");
+  await waitText(alice, "Studying together", 20000);
+  await waitText(bob, "Studying together", 30000);
   await bob.getByRole("button", { name: "Leave this session" }).click();
   await bob.reload();
   await waitText(bob, "You left this session.");
@@ -404,6 +406,31 @@ try {
       bobReturnBody.includes("You left this session."),
   );
 
+  console.log("");
+  console.log("# Stale session recovery");
+  const staleContext = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+  });
+  const stale = await staleContext.newPage();
+  const stamp = Date.now();
+  const staleEmail = `stale${stamp}@focusx.test`;
+  const staleUsername = `stale${stamp}`;
+  await stale.goto(`${BASE}/register`);
+  await stale.getByLabel("Full name").fill("Stale Account");
+  await stale.getByLabel("Username").fill(staleUsername);
+  await stale.getByLabel("Email").fill(staleEmail);
+  await stale.getByLabel("Password").fill(PASSWORD);
+  await stale.getByRole("button", { name: "Create account" }).click();
+  await stale.waitForURL("**/rooms", { timeout: 20000 });
+  sql(`delete from auth.users where email = '${staleEmail}';`);
+  await stale.goto(`${BASE}/rooms`);
+  await waitText(stale, "no longer matches an account");
+  check(
+    "a session whose account was removed is asked to sign in again",
+    stale.url().includes("/login?stale=1"),
+    stale.url(),
+  );
+  await staleContext.close();
   console.log("\n# Mobile layout");
   const mobileContext = await browser.newContext({
     viewport: { width: 390, height: 844 },

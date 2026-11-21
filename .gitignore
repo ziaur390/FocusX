@@ -7,3 +7,6 @@ coverage/
 !.env.example
 supabase/.temp/
 .DS_Store
+
+# Next.js generated type declarations
+apps/web/next-env.d.ts
