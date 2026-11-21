@@ -5,7 +5,7 @@
       "id": "FX-001",
       "title": "First two-person accountability room",
       "file": "harness/tasks/FX-001.md",
-      "status": "pending",
+      "status": "in_progress",
       "dependsOn": []
     },
     {
