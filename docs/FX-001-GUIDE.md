@@ -211,6 +211,7 @@ and paste the summary, commit, check results and preview link. Follow [Zia's rev
 | `Invite unavailable` for a valid code | The database was reset after the room was created, or the code is mistyped |
 | No check-in form after the timer hits zero | The server deadline has not passed; reload, or check `rounds.deadline` |
 | `new row violates row-level security policy` | A goal edit during a live round, or a write attempted outside the RPC |
+| `violates foreign key constraint "rooms_host_id_fkey"` | The browser still holds a session for an account removed by `supabase db reset`. Refresh, then sign in again; the app now sends mismatched sessions to `/login?stale=1` |
 | Playwright cannot find the browser | Run `npx playwright install chromium`, or use `channel: "chrome"` |
 | e2e cannot sign in | Run the seed script against the same Supabase stack and confirm `.env.local` points to it |
 | Test rooms clutter the room list | `npx supabase db reset` then run the seed script again |

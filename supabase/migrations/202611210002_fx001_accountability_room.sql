@@ -133,6 +133,9 @@ begin
   if me is null then
     raise exception 'Sign in to create a room.' using errcode = '42501';
   end if;
+  if not exists (select 1 from public.profiles where id = me) then
+    raise exception 'Your account has no profile. Sign out and sign in again.' using errcode = '42501';
+  end if;
 
   insert into public.rooms (host_id, subject, duration_minutes)
   values (me, btrim(p_subject), p_duration_minutes)
@@ -155,6 +158,9 @@ declare
 begin
   if me is null then
     raise exception 'Sign in to join a room.' using errcode = '42501';
+  end if;
+  if not exists (select 1 from public.profiles where id = me) then
+    raise exception 'Your account has no profile. Sign out and sign in again.' using errcode = '42501';
   end if;
 
   select id into target from public.rooms where join_code = lower(btrim(p_code));
