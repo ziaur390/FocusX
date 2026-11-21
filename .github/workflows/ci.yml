@@ -1,0 +1,48 @@
+name: FocusX CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: focusx-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Plan checks
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate FocusX task briefs and links
+        shell: pwsh
+        run: .\scripts\check-plan.ps1
+
+  web:
+    name: Web checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Require a committed workspace lockfile
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "::error::Run npm install at the repository root and commit the resulting package-lock.json."
+            exit 1
+          fi
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

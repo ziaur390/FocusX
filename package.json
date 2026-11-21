@@ -1,0 +1,13 @@
+{
+  "name": "focusx",
+  "private": true,
+  "workspaces": ["apps/web"],
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "dev": "npm run dev --workspace @focusx/web",
+    "build": "npm run build --workspace @focusx/web",
+    "lint": "npm run lint --workspace @focusx/web",
+    "typecheck": "npm run typecheck --workspace @focusx/web",
+    "test": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test apps/web/tests/*.test.mts"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "tasks": [
+    {
+      "id": "FX-001",
+      "title": "First two-person accountability room",
+      "file": "harness/tasks/FX-001.md",
+      "status": "pending",
+      "dependsOn": []
+    },
+    {
+      "id": "FX-003",
+      "title": "Personal workspace",
+      "file": "harness/tasks/FX-003.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-001"
+      ]
+    },
+    {
+      "id": "FX-004",
+      "title": "Persistent circles and outside invitations",
+      "file": "harness/tasks/FX-004.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-001",
+        "FX-003"
+      ]
+    },
+    {
+      "id": "FX-005",
+      "title": "Quests, points, and regional rankings",
+      "file": "harness/tasks/FX-005.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-004",
+        "FX-006",
+        "FX-007"
+      ]
+    },
+    {
+      "id": "FX-006",
+      "title": "Mutual accountability for larger circles",
+      "file": "harness/tasks/FX-006.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-004"
+      ]
+    },
+    {
+      "id": "FX-007",
+      "title": "Today's Study and the first MDCAT learning loop",
+      "file": "harness/tasks/FX-007.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-003"
+      ]
+    },
+    {
+      "id": "FX-008",
+      "title": "Optional private text and video updates",
+      "file": "harness/tasks/FX-008.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-006"
+      ]
+    },
+    {
+      "id": "FX-009",
+      "title": "Exam simulator and pacing feedback",
+      "file": "harness/tasks/FX-009.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-007"
+      ]
+    },
+    {
+      "id": "FX-010",
+      "title": "Most recommended resource for each MDCAT topic",
+      "file": "harness/tasks/FX-010.md",
+      "status": "pending",
+      "dependsOn": [
+        "FX-007"
+      ]
+    }
+  ]
+}
