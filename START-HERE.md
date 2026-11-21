@@ -7,6 +7,7 @@ Start with a **private web room for two students**. Each student enters a measur
 | Read | What it covers |
 | --- | --- |
 | [First coding task](harness/tasks/FX-001.md) | Build the two-person accountability room |
+| [FX-001 guide](docs/FX-001-GUIDE.md) | What the room does, how to run it, test it and review it |
 | [PLAN.md](docs/PLAN.md) | Release order and first-week build |
 | [FEATURES.md](docs/FEATURES.md) | Complete feature list |
 | [REQUIRED-FEATURES.md](docs/REQUIRED-FEATURES.md) | Acceptance checks for committed features |
@@ -28,4 +29,6 @@ From the project folder in PowerShell 7:
 pi
 ```
 
-At the Pi prompt, use `/focusx-build FX-001`. The current repository contains a small web and Supabase scaffold. The accountability features are planned for implementation.
+At the Pi prompt, use `/focusx-build FX-001`. The current repository contains a small web and Supabase scaffold. The two-person accountability room is implemented on `feat/fx-001-accountability-room` and awaits review.
+
+For setup, local accounts, the review walkthrough, checks and troubleshooting, read the [FX-001 guide](docs/FX-001-GUIDE.md).
