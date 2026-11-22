@@ -39,6 +39,11 @@ export function ActionForm({
           {state.error}
         </p>
       ) : null}
+      {state?.notice ? (
+        <p role="status" className="mt-3 rounded-lg bg-paper px-3 py-2 text-sm text-ink">
+          {state.notice}
+        </p>
+      ) : null}
       {hint ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
       <SubmitButton tone={tone} fullWidth={fullWidth} disabled={disabled}>
         {submit}

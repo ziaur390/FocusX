@@ -126,6 +126,33 @@ Synthetic accounts created by the seed script (passwords come from `SEED_PASSWOR
 | `bob@focusx.test` | Invited peer |
 | `outsider@focusx.test` | Third account for access checks |
 
+### Hosted preview (Vercel + hosted Supabase)
+
+1. Apply both migrations in order to the hosted development project. Use the SQL editor or run `npx supabase link --project-ref <ref>` followed by `npx supabase db push`.
+   - `202611210001_focus_foundation.sql`
+   - `202611210002_fx001_accountability_room.sql`
+2. In **Vercel → Project → Settings**, set **Root Directory** to `apps/web` and **Node.js Version** to 22. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for the Preview environment using values from the hosted project. Redeploy the branch after changing variables.
+3. For the room walkthrough, use **Authentication → Users → Add user → Create new user** in the connected development project. Create two test users with fresh addresses you control and unique passwords. A third user lets you check what an outsider can see. Enable **Auto Confirm User** for each, then use the app's sign-in page in separate browser profiles. The profile trigger creates the associated rows automatically. Keep email confirmation enabled for normal sign-up. [Supabase admin user creation](https://supabase.com/docs/reference/javascript/auth-admin-createuser)
+
+#### Verify public email sign-up
+
+Set the project's **Authentication → URL Configuration → Site URL** to the stable deployed FocusX origin for that Supabase project. For this flow, leave **Confirm email** enabled. Deploy the `/auth/confirm` route, then add the link below to the template under **Authentication → Email → Confirm signup**.
+
+```html
+<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email">Confirm your email</a>
+```
+
+The callback verifies the token on the server and signs the account in. The signup browser can continue to the original invite while its redirect cookie is valid. Opening the email in another browser goes to the rooms page after confirmation. Set up custom SMTP for mail to users outside the project's team. [Supabase Next.js confirmation flow](https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs) · [Supabase SMTP](https://supabase.com/docs/guides/auth/auth-smtp)
+
+| Symptom on the preview | Meaning | Fix |
+| --- | --- | --- |
+| Confirmation message after sign-up | Supabase is waiting for email verification | Follow the email link, or use an auto-confirmed test account for the room walkthrough |
+| “Your previous session no longer matches an account” | The account or its profile is missing | Apply both migrations if needed, then create a fresh test account |
+| “Supabase is not configured” | Preview env vars are missing or the deployment predates them | Add the two `NEXT_PUBLIC_*` variables and redeploy |
+| Room creation fails with a missing table or foreign key | Migrations were not applied to this project | Apply both migrations in order |
+| Confirmation link opens `localhost:3000` | Hosted Auth Site URL is still local | Update the Site URL to the stable deployed origin and request a fresh confirmation email |
+| Confirmation email never arrives | Delivery may be limited by the default SMTP service | Check the Supabase Auth logs and the inbox, then configure SMTP for external addresses |
+
 ## 7. Next round or clean slate
 
 - Applied migrations: `202611210001_focus_foundation.sql` (profiles/study sessions) and `202611210002_fx001_accountability_room.sql`.
@@ -185,7 +212,7 @@ The script uses installed Google Chrome (`channel: "chrome"`); if you use the do
 | No personal profile page, dashboard or private history yet | FX-003 |
 | No realtime push; the room polls every 15 seconds while setting up, studying or checking in, every 60 seconds once a round is closed, and refreshes on actions | Acceptable for R0; revisit when rooms grow |
 | The 24-hour check-in window was verified by moving the deadline in the local database, not by waiting a day | Repeat on the preview if needed |
-| Local email confirmations are disabled; hosted environments must confirm accounts before signing in | Environment setup |
+| Hosted Supabase email confirmation uses the confirmation route, email template and verified SMTP delivery | Environment setup |
 | No Vercel preview from this environment; CI runs on the pull request | Zia connects Vercel and the development Supabase project |
 
 ## 11. Publishing and review

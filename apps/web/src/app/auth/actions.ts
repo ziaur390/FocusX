@@ -1,14 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { parseProfile } from "@/lib/profile";
 import { createSupabase } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/action-state";
-
-function safeNext(value: FormDataEntryValue | null) {
-  const next = String(value ?? "/rooms");
-  return next.startsWith("/") && !next.startsWith("//") ? next : "/rooms";
-}
+import {
+  confirmationPath,
+  safeAuthNext,
+  signupNextCookie,
+} from "@/lib/auth-redirect";
 
 export async function signInAction(
   _state: FormState,
@@ -24,10 +25,14 @@ export async function signInAction(
   const supabase = await createSupabase();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    return { error: "That email and password do not match an account." };
+    return {
+      error: error.code === "email_not_confirmed"
+        ? "Confirm your email using the link in your inbox before signing in."
+        : "That email and password do not match an account.",
+    };
   }
 
-  redirect(safeNext(form.get("next")));
+  redirect(safeAuthNext(form.get("next")));
 }
 
 export async function signUpAction(
@@ -36,7 +41,7 @@ export async function signUpAction(
 ): Promise<FormState> {
   const email = String(form.get("email") ?? "").trim();
   const password = String(form.get("password") ?? "");
-  const next = safeNext(form.get("next"));
+  const next = safeAuthNext(form.get("next"));
 
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return { error: "Enter a valid email address." };
@@ -68,7 +73,14 @@ export async function signUpAction(
     };
   }
   if (!data.session) {
-    return { error: "Check your email to confirm the account, then sign in." };
+    (await cookies()).set(signupNextCookie, next, {
+      path: confirmationPath,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60,
+    });
+    return { notice: "Open the confirmation link in your email to finish setting up your account." };
   }
 
   redirect(next);

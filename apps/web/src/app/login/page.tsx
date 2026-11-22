@@ -10,9 +10,9 @@ import { readSupabaseEnv } from "@/lib/supabase/env";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; stale?: string }>;
+  searchParams: Promise<{ next?: string; stale?: string; confirmation?: string }>;
 }) {
-  const { next, stale } = await searchParams;
+  const { next, stale, confirmation } = await searchParams;
   const staleSession = stale === "1";
 
   if (!staleSession && readSupabaseEnv()) {
@@ -37,6 +37,13 @@ export default async function LoginPage({
           >
             Your previous session no longer matches an account. Sign in again,
             or create a new account.
+          </p>
+        ) : null}
+
+        {confirmation === "failed" ? (
+          <p role="alert" className="mt-4 rounded-xl bg-error-bg px-4 py-3 text-sm text-error">
+            This confirmation link is invalid or expired. If you already confirmed
+            your email, sign in below.
           </p>
         ) : null}
 
