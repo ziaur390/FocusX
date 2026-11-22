@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { SiteHeader } from "@/components/site-header";
+import { TimezoneField } from "@/components/timezone-field";
 import { signUpAction } from "@/app/auth/actions";
-import { examTracks } from "@/lib/profile";
+import { examTracks, maxExamYear, minExamYear } from "@/lib/profile";
 import { fieldClass, labelClass } from "@/lib/ui";
 import { createSupabase } from "@/lib/supabase/server";
 import { readSupabaseEnv } from "@/lib/supabase/env";
@@ -104,6 +105,21 @@ export default async function RegisterPage({
               ))}
             </select>
           </label>
+
+          <label className={`${labelClass} mt-4`}>
+            Exam year
+            <input
+              className={fieldClass}
+              type="number"
+              name="exam_year"
+              defaultValue={new Date().getFullYear()}
+              min={minExamYear}
+              max={maxExamYear}
+              required
+            />
+          </label>
+
+          <TimezoneField />
 
           <label className={`${labelClass} mt-4`}>
             Daily study goal (minutes)

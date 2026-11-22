@@ -8,6 +8,8 @@ function profileForm(dailyTarget = "90") {
   fields.set("username", "  MDCAT_Student  ");
   fields.set("exam_track", "MDCAT");
   fields.set("daily_target_minutes", dailyTarget);
+  fields.set("exam_year", "2027");
+  fields.set("timezone", "Asia/Karachi");
   return fields;
 }
 
@@ -17,6 +19,8 @@ test("profile input normalizes the name and username", () => {
     username: "mdcat_student",
     exam_track: "MDCAT",
     daily_target_minutes: 90,
+    exam_year: 2027,
+    timezone: "Asia/Karachi",
   });
 });
 
@@ -27,6 +31,19 @@ test("profile input rejects unsupported study targets", () => {
       "Enter a daily goal between 15 and 720 minutes.",
     );
   }
+});
+
+test("profile input rejects an invalid exam year or timezone", () => {
+  const year = profileForm();
+  year.set("exam_year", "2019");
+  assert.equal(
+    parseProfile(year),
+    "Choose an exam year between 2020 and 2045.",
+  );
+
+  const zone = profileForm();
+  zone.set("timezone", "Mars/Olympus");
+  assert.equal(parseProfile(zone), "Choose a valid reporting timezone.");
 });
 
 test("profile input rejects usernames with path characters", () => {

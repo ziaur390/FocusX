@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { SiteHeader } from "@/components/site-header";
+import { TimezoneField } from "@/components/timezone-field";
 import { signOutAction } from "@/app/auth/actions";
 import { requireUser } from "@/lib/auth";
-import { examTracks } from "@/lib/profile";
+import { examTracks, maxExamYear, minExamYear } from "@/lib/profile";
 import { fieldClass, labelClass } from "@/lib/ui";
 import { updateProfileAction } from "./actions";
 
@@ -13,13 +14,15 @@ type ProfileRow = {
   username: string;
   exam_track: string;
   daily_target_minutes: number;
+  exam_year: number;
+  timezone: string;
 };
 
 export default async function ProfilePage() {
   const { supabase, userId } = await requireUser();
   const { data } = await supabase
     .from("profiles")
-    .select("full_name, username, exam_track, daily_target_minutes")
+    .select("full_name, username, exam_track, daily_target_minutes, exam_year, timezone")
     .eq("id", userId)
     .maybeSingle();
 
@@ -93,6 +96,21 @@ export default async function ProfilePage() {
               ))}
             </select>
           </label>
+
+          <label className={`${labelClass} mt-4`}>
+            Exam year
+            <input
+              className={fieldClass}
+              type="number"
+              name="exam_year"
+              defaultValue={profile.exam_year}
+              min={minExamYear}
+              max={maxExamYear}
+              required
+            />
+          </label>
+
+          <TimezoneField defaultValue={profile.timezone} />
 
           <label className={`${labelClass} mt-4`}>
             Daily study goal (minutes)
