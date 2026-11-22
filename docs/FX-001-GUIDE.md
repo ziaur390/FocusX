@@ -126,6 +126,38 @@ Synthetic accounts created by the seed script (passwords come from `SEED_PASSWOR
 | `bob@focusx.test` | Invited peer |
 | `outsider@focusx.test` | Third account for access checks |
 
+### Hosted preview (Vercel + hosted Supabase)
+
+The local stack disables email confirmation. A hosted Supabase project enables it by default, so a new sign-up returns no session and the form shows **"Check your email to confirm the account, then sign in."** That is a project setting, not a code failure.
+
+1. Apply both migrations in order to the hosted development project (SQL editor, or `npx supabase link --project-ref <ref>` then `npx supabase db push`):
+   - `202611210001_focus_foundation.sql`
+   - `202611210002_fx001_accountability_room.sql`
+2. Seed the synthetic accounts against it:
+   ```powershell
+   $env:SUPABASE_URL="https://<ref>.supabase.co"
+   $env:SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+   node scripts/seed-dev-users.mjs
+   ```
+   Seeded users are created already confirmed and can sign in immediately.
+3. For a private preview, turn off email confirmation so normal sign-up also works:
+   **Supabase Dashboard → Authentication → Providers → Email → turn off "Confirm email" → Save.**
+   If you keep it on, either use the seeded accounts, or set **Authentication → URL Configuration → Site URL** (and redirect URLs) to the preview domain so the confirmation link works instead of pointing at localhost.
+4. In **Vercel → Project → Settings**:
+   - Root Directory: `apps/web`
+   - Node.js: 22
+   - Preview environment variables: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the hosted project
+   - Redeploy the branch after changing variables
+5. Never put the service-role key in a `NEXT_PUBLIC_*` variable, the browser, or Git. It is only for seeding.
+
+| Symptom on the preview | Meaning | Fix |
+| --- | --- | --- |
+| “Check your email to confirm the account” after sign-up | Hosted project still requires email confirmation | Disable **Confirm email** for the dev project, use a seeded account, or confirm through the email link with the preview Site URL |
+| “Your previous session no longer matches an account” | The account or its profile is missing; usually migrations were not applied before sign-up | Apply both migrations, then sign up again or use a seeded account |
+| “Supabase is not configured” | Preview env vars are missing or the deployment predates them | Add the two `NEXT_PUBLIC_*` variables and redeploy |
+| Room creation fails with a missing table or foreign key | Migrations were not applied to this project | Apply both migrations in order |
+| Confirmation link opens `localhost:3000` | Hosted Auth Site URL is still local | Set the Site URL and redirect URLs to the preview domain, or disable confirmation |
+
 ## 7. Next round or clean slate
 
 - Applied migrations: `202611210001_focus_foundation.sql` (profiles/study sessions) and `202611210002_fx001_accountability_room.sql`.
@@ -185,7 +217,7 @@ The script uses installed Google Chrome (`channel: "chrome"`); if you use the do
 | No personal profile page, dashboard or private history yet | FX-003 |
 | No realtime push; the room polls every 15 seconds while setting up, studying or checking in, every 60 seconds once a round is closed, and refreshes on actions | Acceptable for R0; revisit when rooms grow |
 | The 24-hour check-in window was verified by moving the deadline in the local database, not by waiting a day | Repeat on the preview if needed |
-| Local email confirmations are disabled; hosted environments must confirm accounts before signing in | Environment setup |
+| Hosted Supabase defaults to email confirmation; disable it for the private dev preview or use the seeded accounts | Environment setup |
 | No Vercel preview from this environment; CI runs on the pull request | Zia connects Vercel and the development Supabase project |
 
 ## 11. Publishing and review
