@@ -5,14 +5,14 @@
       "id": "FX-001",
       "title": "First two-person accountability room",
       "file": "harness/tasks/FX-001.md",
-      "status": "in_progress",
+      "status": "verified",
       "dependsOn": []
     },
     {
       "id": "FX-003",
       "title": "Personal workspace",
       "file": "harness/tasks/FX-003.md",
-      "status": "pending",
+      "status": "in_progress",
       "dependsOn": [
         "FX-001"
       ]

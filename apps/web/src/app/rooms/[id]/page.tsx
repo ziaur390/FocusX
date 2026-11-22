@@ -27,6 +27,7 @@ export default async function RoomPage({
           right={
             <>
               <Link href="/rooms">Your rooms</Link>
+              <Link href="/profile">Profile</Link>
               <ActionForm
                 action={signOutAction}
                 submit="Sign out"
@@ -199,6 +200,7 @@ export default async function RoomPage({
         right={
           <>
             <Link href="/rooms">Your rooms</Link>
+            <Link href="/profile">Profile</Link>
             <ActionForm
               action={signOutAction}
               submit="Sign out"
