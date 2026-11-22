@@ -56,9 +56,14 @@ export async function signUpAction(
   });
 
   if (error) {
+    const message = error.message.toLowerCase();
+    const taken =
+      message.includes("already") ||
+      message.includes("duplicate") ||
+      message.includes("database error saving new user");
     return {
-      error: error.message.toLowerCase().includes("already")
-        ? "An account already uses that email or username."
+      error: taken
+        ? "That email or username is already in use. Try another, or sign in."
         : error.message,
     };
   }

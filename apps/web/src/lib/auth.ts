@@ -7,7 +7,17 @@ export async function requireUser() {
 
   const supabase = await createSupabase();
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) redirect("/login");
+  const userId = data?.claims?.sub;
+  if (!userId) redirect("/login");
 
-  return { supabase, userId: data.claims.sub };
+  // A valid JWT can outlive its account (for example after a database reset).
+  // Without a profile, room writes would fail on the host/user foreign keys.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile) redirect("/login?stale=1");
+
+  return { supabase, userId };
 }

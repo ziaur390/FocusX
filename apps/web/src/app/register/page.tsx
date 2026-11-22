@@ -11,11 +11,12 @@ import { readSupabaseEnv } from "@/lib/supabase/env";
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; stale?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, stale } = await searchParams;
+  const staleSession = stale === "1";
 
-  if (readSupabaseEnv()) {
+  if (!staleSession && readSupabaseEnv()) {
     const supabase = await createSupabase();
     const { data } = await supabase.auth.getClaims();
     if (data?.claims?.sub) redirect("/rooms");
@@ -32,6 +33,16 @@ export default async function RegisterPage({
           Your profile stays private. Room members only see the goals, outcomes
           and responses you share in that room.
         </p>
+
+        {staleSession ? (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl bg-due-bg px-4 py-3 text-sm text-due"
+          >
+            Your previous session no longer matches an account. Create a new
+            account, or sign in with an existing one.
+          </p>
+        ) : null}
 
         <ActionForm action={signUpAction} submit="Create account" className="mt-8">
           <input type="hidden" name="next" value={next ?? "/rooms"} />
@@ -54,8 +65,8 @@ export default async function RegisterPage({
               className={fieldClass}
               name="username"
               autoComplete="username"
-              pattern="[a-z0-9_]{3,24}"
-              title="3–24 lowercase letters, numbers or underscores"
+              pattern="[A-Za-z0-9_]{3,24}"
+              title="3–24 letters, numbers or underscores"
               required
             />
           </label>

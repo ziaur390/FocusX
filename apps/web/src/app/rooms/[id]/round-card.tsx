@@ -68,7 +68,7 @@ export function RoundCard({
 }) {
   const peer =
     round.participants.find((person) => person.user_id === round.peerId) ?? null;
-  const canCheckIn = round.phase === "checkin";
+  const canCheckIn = round.phase === "checkin" && round.me !== null;
   const isLive = round.phase === "studying";
 
   return (
@@ -183,7 +183,7 @@ export function RoundCard({
         </div>
       ) : null}
 
-      {round.phase === "closed" && !round.myOutcome ? (
+      {round.me && round.phase === "closed" && !round.myOutcome ? (
         <p className="mt-3 rounded-lg bg-paper px-3 py-2 text-sm text-muted">
           The check-in window closed without your result. It stays visible as
           missing.

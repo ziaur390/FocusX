@@ -10,11 +10,12 @@ import { readSupabaseEnv } from "@/lib/supabase/env";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; stale?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, stale } = await searchParams;
+  const staleSession = stale === "1";
 
-  if (readSupabaseEnv()) {
+  if (!staleSession && readSupabaseEnv()) {
     const supabase = await createSupabase();
     const { data } = await supabase.auth.getClaims();
     if (data?.claims?.sub) redirect("/rooms");
@@ -28,6 +29,16 @@ export default async function LoginPage({
         <p className="mt-2 text-sm text-muted">
           Sign in to open your study rooms and check-ins.
         </p>
+
+        {staleSession ? (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl bg-due-bg px-4 py-3 text-sm text-due"
+          >
+            Your previous session no longer matches an account. Sign in again,
+            or create a new account.
+          </p>
+        ) : null}
 
         <ActionForm action={signInAction} submit="Sign in" className="mt-8">
           <input type="hidden" name="next" value={next ?? "/rooms"} />
