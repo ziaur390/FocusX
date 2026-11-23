@@ -3,7 +3,13 @@ import { ActionForm } from "@/components/action-form";
 import { SiteHeader } from "@/components/site-header";
 import { signOutAction } from "@/app/auth/actions";
 import { requireUser } from "@/lib/auth";
-import { roundDurations } from "@/lib/room";
+import {
+  nextRoomAction,
+  roundDurations,
+  type NextAction,
+  type NextActionKind,
+} from "@/lib/room";
+import { loadRoomView } from "@/lib/rooms";
 import { cardClass, fieldClass, labelClass } from "@/lib/ui";
 import { createRoomAction, joinRoomAction } from "./actions";
 
@@ -15,6 +21,24 @@ type RoomLink = {
     duration_minutes: number;
     current_round: number;
   } | null;
+};
+
+const actionTone: Record<NextActionKind, string> = {
+  checkin: "bg-due-bg text-due",
+  peer: "bg-lavender text-ink",
+  live: "bg-lavender text-ink",
+  ready: "bg-paper text-muted",
+  waiting: "bg-paper text-muted",
+  closed: "bg-paper text-muted",
+};
+
+const actionName: Record<NextActionKind, string> = {
+  checkin: "Check-in",
+  peer: "Peer response",
+  live: "Live",
+  ready: "Set up",
+  waiting: "Waiting",
+  closed: "Closed",
 };
 
 export default async function RoomsPage() {
@@ -29,6 +53,29 @@ export default async function RoomsPage() {
   const rooms = ((data ?? []) as unknown as RoomLink[])
     .map((row) => row.rooms)
     .filter((room): room is NonNullable<RoomLink["rooms"]> => room !== null);
+
+  const views = await Promise.all(
+    rooms.map((room) => loadRoomView(supabase, room.id, userId)),
+  );
+  const actions = views
+    .map((view) =>
+      view
+        ? nextRoomAction({
+            room: view.room,
+            myMembership: view.myMembership,
+            latest: view.rounds[0] ?? null,
+            isHost: view.room.host_id === userId,
+            readyCount: view.members.filter(
+              (member) => member.is_ready && member.goal,
+            ).length,
+          })
+        : null,
+    )
+    .filter((action): action is NextAction => action !== null)
+    .sort(
+      (a, b) =>
+        a.priority - b.priority || a.roomSubject.localeCompare(b.roomSubject),
+    );
 
   return (
     <>
@@ -55,7 +102,49 @@ export default async function RoomsPage() {
           check-in, and a response to their peer.
         </p>
 
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
+        <section className="mt-6">
+          <h2 className="font-display text-xl font-semibold">
+            Your next actions
+          </h2>
+          {actions.length === 0 ? (
+            <p className="mt-3 rounded-xl bg-paper px-4 py-3 text-sm text-muted">
+              Nothing due right now. Create a room or open one of yours below.
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {actions.map((action) => (
+                <li key={`${action.roomId}-${action.kind}`}>
+                  <Link
+                    href={`/rooms/${action.roomId}`}
+                    className="flex items-start justify-between gap-4 rounded-2xl border border-divider bg-white px-4 py-3 transition-colors hover:border-violet hover:bg-paper"
+                  >
+                    <span>
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${actionTone[action.kind]}`}
+                      >
+                        {actionName[action.kind]}
+                      </span>
+                      <span className="mt-2 block font-semibold">
+                        {action.label}
+                      </span>
+                      <span className="text-sm text-muted">
+                        {action.roomSubject}
+                        {action.roundNumber
+                          ? ` · round ${action.roundNumber}`
+                          : ""}
+                      </span>
+                    </span>
+                    <span className="text-sm font-semibold text-violet">
+                      Open
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
           <section className={cardClass}>
             <h2 className="font-display text-xl font-semibold">Start a room</h2>
             <p className="mt-1 text-sm text-muted">
