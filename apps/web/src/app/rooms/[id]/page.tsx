@@ -29,8 +29,12 @@ export default async function RoomPage({
               <Link href="/rooms" className="hidden sm:inline">
                 Your rooms
               </Link>
-              <Link href="/history">History</Link>
-              <Link href="/history">History</Link>
+              <Link href="/friends">Friends</Link>
+              <Link href="/friends">Friends</Link>
+            <Link href="/history">History</Link>
+              <Link href="/friends">Friends</Link>
+              <Link href="/friends">Friends</Link>
+            <Link href="/history">History</Link>
             <Link href="/profile">Profile</Link>
               <ActionForm
                 action={signOutAction}
@@ -206,6 +210,7 @@ export default async function RoomPage({
             <Link href="/rooms" className="hidden sm:inline">
                 Your rooms
               </Link>
+            <Link href="/friends">Friends</Link>
             <Link href="/history">History</Link>
             <Link href="/profile">Profile</Link>
             <ActionForm
