@@ -35,6 +35,7 @@ export default async function ProfilePage() {
         right={
           <>
             <Link href="/rooms">Your rooms</Link>
+            <Link href="/history">History</Link>
             <ActionForm
               action={signOutAction}
               submit="Sign out"
