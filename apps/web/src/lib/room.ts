@@ -144,3 +144,158 @@ export function assignedPeer(userIds: string[], userId: string): string | null {
 
   return roster[(index + 1) % roster.length];
 }
+
+export type NextActionKind =
+  | "checkin"
+  | "peer"
+  | "live"
+  | "ready"
+  | "waiting"
+  | "closed";
+
+export type NextAction = {
+  roomId: string;
+  roomSubject: string;
+  kind: NextActionKind;
+  label: string;
+  roundNumber: number | null;
+  priority: number;
+};
+
+type ActionMembership = { is_ready: boolean } | null;
+type ActionParticipant = {
+  user_id: string;
+  full_name: string;
+  outcome: unknown | null;
+};
+type ActionRound = {
+  number: number;
+  phase: RoundPhase;
+  me: { user_id: string } | null;
+  myOutcome: unknown | null;
+  myResponse: unknown | null;
+  peerId: string | null;
+  participants: ActionParticipant[];
+};
+
+// One dashboard action for a room: the next thing this member owes.
+export function nextRoomAction({
+  room,
+  myMembership,
+  latest,
+  isHost,
+  readyCount,
+}: {
+  room: { id: string; subject: string };
+  myMembership: ActionMembership;
+  latest: ActionRound | null;
+  isHost: boolean;
+  readyCount: number;
+}): NextAction | null {
+  if (!myMembership) return null;
+
+  const base = { roomId: room.id, roomSubject: room.subject };
+
+  if (!latest) {
+    if (!myMembership.is_ready) {
+      return {
+        ...base,
+        kind: "ready",
+        label: "Set your goal and mark ready",
+        roundNumber: null,
+        priority: 3,
+      };
+    }
+    if (isHost && readyCount >= 2) {
+      return {
+        ...base,
+        kind: "ready",
+        label: "Start the round",
+        roundNumber: null,
+        priority: 2,
+      };
+    }
+    return {
+      ...base,
+      kind: "waiting",
+      label: isHost
+        ? "Waiting for two ready members"
+        : "Waiting for the host to start",
+      roundNumber: null,
+      priority: 4,
+    };
+  }
+
+  const round = { ...base, roundNumber: latest.number };
+
+  if (latest.phase === "studying") {
+    if (!latest.me) return null;
+    return {
+      ...round,
+      kind: "live",
+      label: `Round ${latest.number} is running`,
+      priority: 2,
+    };
+  }
+
+  if (latest.phase === "checkin") {
+    if (!latest.me) return null;
+    if (!latest.myOutcome) {
+      return {
+        ...round,
+        kind: "checkin",
+        label: `Check in for round ${latest.number}`,
+        priority: 0,
+      };
+    }
+    if (!latest.myResponse) {
+      const peer =
+        latest.participants.find((person) => person.user_id === latest.peerId) ??
+        null;
+      if (peer?.outcome) {
+        return {
+          ...round,
+          kind: "peer",
+          label: `Respond to ${peer.full_name}`,
+          priority: 1,
+        };
+      }
+      return {
+        ...round,
+        kind: "waiting",
+        label: `Waiting for ${peer?.full_name ?? "your peer"} to check in`,
+        priority: 4,
+      };
+    }
+    return null;
+  }
+
+  if (!latest.me) return null;
+
+  if (!latest.myOutcome) {
+    return {
+      ...round,
+      kind: "closed",
+      label: `Round ${latest.number} closed without your check-in`,
+      priority: 5,
+    };
+  }
+
+  if (!latest.myResponse) {
+    const peer =
+      latest.participants.find((person) => person.user_id === latest.peerId) ??
+      null;
+    if (peer) {
+      return {
+        ...round,
+        kind: "peer",
+        label: peer.outcome
+          ? `Respond to ${peer.full_name}`
+          : `Record no check-in for ${peer.full_name}`,
+        priority: 1,
+      };
+    }
+  }
+
+  return null;
+}
