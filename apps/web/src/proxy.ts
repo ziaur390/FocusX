@@ -37,6 +37,7 @@ export const config = {
     "/onboarding",
     "/dashboard/:path*",
     "/profile",
+    "/history",
     "/rooms/:path*",
     "/join/:path*",
   ],

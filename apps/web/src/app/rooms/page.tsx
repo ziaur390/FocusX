@@ -83,6 +83,7 @@ export default async function RoomsPage() {
         right={
           <>
             <span className="hidden text-muted sm:inline">Your rooms</span>
+            <Link href="/history">History</Link>
             <Link href="/profile">Profile</Link>
             <ActionForm
               action={signOutAction}
