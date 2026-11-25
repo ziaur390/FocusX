@@ -38,6 +38,7 @@ export const config = {
     "/dashboard/:path*",
     "/profile",
     "/history",
+    "/friends",
     "/rooms/:path*",
     "/join/:path*",
   ],

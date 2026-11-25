@@ -12,7 +12,7 @@
       "id": "FX-003",
       "title": "Personal workspace",
       "file": "harness/tasks/FX-003.md",
-      "status": "in_progress",
+      "status": "verified",
       "dependsOn": [
         "FX-001"
       ]
@@ -21,7 +21,7 @@
       "id": "FX-004",
       "title": "Persistent circles and outside invitations",
       "file": "harness/tasks/FX-004.md",
-      "status": "pending",
+      "status": "in_progress",
       "dependsOn": [
         "FX-001",
         "FX-003"

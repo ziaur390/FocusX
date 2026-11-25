@@ -1,6 +1,7 @@
 export const examTracks = ["MDCAT", "Other"] as const;
 export type ExamTrack = (typeof examTracks)[number];
 
+export const usernamePattern = /^[a-z0-9_]{3,24}$/;
 export const defaultTimezone = "Asia/Karachi";
 export const minExamYear = 2020;
 export const maxExamYear = 2045;
@@ -25,7 +26,7 @@ export function parseProfile(form: FormData): Profile | string {
   if (fullName.length < 2 || fullName.length > 80) {
     return "Enter a name between 2 and 80 characters.";
   }
-  if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+  if (!usernamePattern.test(username)) {
     return "Use 3–24 letters, numbers or underscores in your username.";
   }
   if (examTrack !== "MDCAT" && examTrack !== "Other") {
