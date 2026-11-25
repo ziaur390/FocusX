@@ -30,6 +30,9 @@ export default async function RoomPage({
                 Your rooms
               </Link>
               <Link href="/friends">Friends</Link>
+            <Link href="/circles">Circles</Link>
+              <Link href="/circles">Circles</Link>
+            <Link href="/circles">Circles</Link>
               <Link href="/friends">Friends</Link>
             <Link href="/history">History</Link>
               <Link href="/friends">Friends</Link>

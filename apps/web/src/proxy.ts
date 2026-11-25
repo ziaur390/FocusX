@@ -39,6 +39,7 @@ export const config = {
     "/profile",
     "/history",
     "/friends",
+    "/circles",
     "/rooms/:path*",
     "/join/:path*",
   ],

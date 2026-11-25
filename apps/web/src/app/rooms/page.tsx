@@ -84,6 +84,7 @@ export default async function RoomsPage() {
           <>
             <span className="hidden text-muted sm:inline">Your rooms</span>
             <Link href="/friends">Friends</Link>
+            <Link href="/circles">Circles</Link>
             <Link href="/history">History</Link>
             <Link href="/profile">Profile</Link>
             <ActionForm
