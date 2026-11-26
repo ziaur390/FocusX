@@ -4,6 +4,7 @@ import {
   assignedPeer,
   canStartRound,
   formatRemaining,
+  inviteExpired,
   normalizeJoinCode,
   parseDuration,
   parseGoal,
@@ -47,6 +48,12 @@ test("room input rejects invalid subjects and durations", () => {
   assert.equal(typeof parseDuration("0"), "string");
   assert.equal(typeof parseDuration("181"), "string");
   assert.equal(typeof parseDuration("12.5"), "string");
+});
+
+test("invite links expire at their timestamp", () => {
+  assert.equal(inviteExpired("2026-11-21T10:00:00.000Z", Date.parse("2026-11-21T09:59:59.000Z")), false);
+  assert.equal(inviteExpired("2026-11-21T10:00:00.000Z", Date.parse("2026-11-21T10:00:00.000Z")), true);
+  assert.equal(inviteExpired("2026-11-21T10:00:00.000Z", Date.parse("2026-11-22T10:00:00.000Z")), true);
 });
 
 test("a room can carry an optional challenge", () => {

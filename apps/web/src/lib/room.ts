@@ -127,6 +127,10 @@ export function normalizeJoinCode(raw: unknown): { code: string } | string {
   return { code };
 }
 
+export function inviteExpired(expiresAt: string, now = Date.now()) {
+  return Date.parse(expiresAt) <= now;
+}
+
 export function canStartRound({
   isHost,
   readyCount,

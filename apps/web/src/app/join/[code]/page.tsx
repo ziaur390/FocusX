@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
 import { SiteHeader } from "@/components/site-header";
 import { joinRoomAction } from "@/app/rooms/actions";
-import { normalizeJoinCode } from "@/lib/room";
+import { inviteExpired, normalizeJoinCode } from "@/lib/room";
 import { createSupabase } from "@/lib/supabase/server";
 import { readSupabaseEnv } from "@/lib/supabase/env";
 
@@ -14,7 +14,14 @@ type Preview = {
   member_count: number;
   is_member: boolean;
   challenge: string | null;
+  expires_at: string;
 };
+
+const dateFormat = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 export default async function JoinPage({
   params,
@@ -41,6 +48,7 @@ export default async function JoinPage({
 
   const invalid = typeof parsed === "string" || !configured || preview === null;
   const room = preview;
+  const expired = room ? inviteExpired(room.expires_at) : false;
 
   return (
     <>
@@ -99,7 +107,25 @@ export default async function JoinPage({
               peer responses. It does not add friends or a wider circle.
             </p>
 
-            {!signedIn ? (
+            {!expired ? (
+              <p className="mt-2 text-xs text-muted">
+                Invite expires{" "}
+                {dateFormat.format(new Date(room.expires_at))}.
+              </p>
+            ) : null}
+
+            {room.is_member ? (
+              <Link
+                href={`/rooms/${room.room_id}`}
+                className="mt-6 inline-flex rounded-xl bg-violet px-4 py-2.5 text-sm font-semibold text-white"
+              >
+                Open room
+              </Link>
+            ) : expired ? (
+              <p className="mt-6 rounded-xl bg-due-bg px-4 py-3 text-sm text-due">
+                This invite link has expired. Ask the host for a new one.
+              </p>
+            ) : !signedIn ? (
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href={`/login?next=/join/${parsed.code}`}
@@ -114,13 +140,6 @@ export default async function JoinPage({
                   Create an account
                 </Link>
               </div>
-            ) : room.is_member ? (
-              <Link
-                href={`/rooms/${room.room_id}`}
-                className="mt-6 inline-flex rounded-xl bg-violet px-4 py-2.5 text-sm font-semibold text-white"
-              >
-                Open room
-              </Link>
             ) : (
               <ActionForm
                 action={joinRoomAction}

@@ -5,11 +5,22 @@ import { Countdown } from "@/components/countdown";
 import { SiteHeader } from "@/components/site-header";
 import { signOutAction } from "@/app/auth/actions";
 import { requireUser } from "@/lib/auth";
-import { canStartRound } from "@/lib/room";
+import { canStartRound, inviteExpired } from "@/lib/room";
 import { loadRoomView } from "@/lib/rooms";
 import { fieldClass, labelClass } from "@/lib/ui";
-import { leaveRoundAction, saveGoalAction, startRoundAction } from "../actions";
+import {
+  leaveRoundAction,
+  refreshInviteAction,
+  saveGoalAction,
+  startRoundAction,
+} from "../actions";
 import { RoundCard } from "./round-card";
+
+const dateFormat = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 export default async function RoomPage({
   params,
@@ -252,6 +263,21 @@ export default async function RoomPage({
             >
               Open invite link
             </Link>
+            <p className="mt-1 text-xs text-muted">
+              {inviteExpired(room.join_code_expires_at)
+                ? "Invite expired"
+                : `Expires ${dateFormat.format(new Date(room.join_code_expires_at))}`}
+            </p>
+            {isHost ? (
+              <ActionForm
+                action={refreshInviteAction}
+                submit="New invite link"
+                tone="secondary"
+                fullWidth={false}
+              >
+                <input type="hidden" name="room_id" value={room.id} />
+              </ActionForm>
+            ) : null}
           </div>
         </div>
 
