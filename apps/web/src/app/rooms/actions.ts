@@ -23,6 +23,7 @@ export async function createRoomAction(
   const { data, error } = await supabase.rpc("create_room", {
     p_subject: parsed.subject,
     p_duration_minutes: parsed.duration,
+    p_challenge: parsed.challenge,
   });
 
   if (error) return { error: error.message };

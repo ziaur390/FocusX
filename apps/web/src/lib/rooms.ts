@@ -14,6 +14,7 @@ export type RoomRecord = {
   duration_minutes: number;
   join_code: string;
   current_round: number;
+  challenge: string | null;
 };
 
 type RoomMemberRow = {

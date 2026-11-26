@@ -13,6 +13,7 @@ type Preview = {
   host_name: string;
   member_count: number;
   is_member: boolean;
+  challenge: string | null;
 };
 
 export default async function JoinPage({
@@ -86,6 +87,13 @@ export default async function JoinPage({
               accountability round with {room.member_count} member
               {room.member_count === 1 ? "" : "s"}.
             </p>
+            {room.challenge ? (
+              <p className="mt-4 rounded-xl bg-lavender px-4 py-3 text-sm text-ink">
+                <span className="font-semibold">Challenge:</span>{" "}
+                {room.challenge}
+              </p>
+            ) : null}
+
             <p className="mt-2 text-sm text-muted">
               Joining grants access to this room only: its goals, outcomes and
               peer responses. It does not add friends or a wider circle.
