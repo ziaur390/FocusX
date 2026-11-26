@@ -44,6 +44,7 @@ export default async function HistoryPage() {
           <>
             <Link href="/rooms">Your rooms</Link>
             <Link href="/friends">Friends</Link>
+            <Link href="/circles">Circles</Link>
             <Link href="/profile">Profile</Link>
             <ActionForm
               action={signOutAction}
