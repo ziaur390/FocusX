@@ -13,6 +13,7 @@ export type RoomRecord = {
   subject: string;
   duration_minutes: number;
   join_code: string;
+  join_code_expires_at: string;
   current_round: number;
   challenge: string | null;
 };

@@ -78,6 +78,23 @@ export async function saveGoalAction(
   return {};
 }
 
+export async function refreshInviteAction(
+  _state: FormState,
+  form: FormData,
+): Promise<FormState> {
+  const roomId = String(form.get("room_id") ?? "");
+
+  const { supabase } = await requireUser();
+  const { error } = await supabase.rpc("refresh_room_invite", {
+    p_room_id: roomId,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/rooms/${roomId}`);
+  return { notice: "New invite link ready." };
+}
+
 export async function startRoundAction(
   _state: FormState,
   form: FormData,
