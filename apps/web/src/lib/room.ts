@@ -58,14 +58,23 @@ export function parseDuration(raw: unknown): { duration: number } | string {
 
 export function parseRoomForm(
   form: FormData,
-): { subject: string; duration: number } | string {
+): { subject: string; duration: number; challenge: string | null } | string {
   const subject = parseSubject(form.get("subject"));
   if (typeof subject === "string") return subject;
 
   const duration = parseDuration(form.get("duration_minutes"));
   if (typeof duration === "string") return duration;
 
-  return { subject: subject.subject, duration: duration.duration };
+  const challenge = String(form.get("challenge") ?? "").trim();
+  if (challenge && (challenge.length < 3 || challenge.length > 200)) {
+    return "Write a challenge between 3 and 200 characters, or leave it empty.";
+  }
+
+  return {
+    subject: subject.subject,
+    duration: duration.duration,
+    challenge: challenge || null,
+  };
 }
 
 export function parseGoal(raw: unknown): { goal: string } | string {

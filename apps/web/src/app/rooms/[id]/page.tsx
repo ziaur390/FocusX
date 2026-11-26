@@ -255,6 +255,12 @@ export default async function RoomPage({
           </div>
         </div>
 
+        {room.challenge ? (
+          <p className="mt-4 rounded-xl bg-lavender px-4 py-3 text-sm text-ink">
+            <span className="font-semibold">Challenge:</span> {room.challenge}
+          </p>
+        ) : null}
+
         {liveRound ? (
           <section className="mt-6 rounded-2xl bg-ink p-6 text-white">
             <Countdown

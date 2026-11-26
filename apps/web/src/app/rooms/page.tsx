@@ -170,6 +170,15 @@ export default async function RoomsPage() {
                 />
               </label>
               <label className={`${labelClass} mt-4`}>
+                Challenge (optional)
+                <input
+                  className={fieldClass}
+                  name="challenge"
+                  maxLength={200}
+                  placeholder="Solve 20 Biology MCQs and review 3 mistakes"
+                />
+              </label>
+              <label className={`${labelClass} mt-4`}>
                 Round length
                 <select
                   className={fieldClass}

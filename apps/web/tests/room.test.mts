@@ -8,6 +8,7 @@ import {
   parseDuration,
   parseGoal,
   parseOutcome,
+  parseRoomForm,
   phaseFor,
   parseSubject,
 } from "../src/lib/room.ts";
@@ -46,6 +47,28 @@ test("room input rejects invalid subjects and durations", () => {
   assert.equal(typeof parseDuration("0"), "string");
   assert.equal(typeof parseDuration("181"), "string");
   assert.equal(typeof parseDuration("12.5"), "string");
+});
+
+test("a room can carry an optional challenge", () => {
+  const form = new FormData();
+  form.set("subject", "Biology MCQs");
+  form.set("duration_minutes", "25");
+  form.set("challenge", "  Solve 20 MCQs and review 3 mistakes  ");
+  assert.deepEqual(parseRoomForm(form), {
+    subject: "Biology MCQs",
+    duration: 25,
+    challenge: "Solve 20 MCQs and review 3 mistakes",
+  });
+
+  form.delete("challenge");
+  assert.deepEqual(parseRoomForm(form), {
+    subject: "Biology MCQs",
+    duration: 25,
+    challenge: null,
+  });
+
+  form.set("challenge", "a".repeat(201));
+  assert.equal(typeof parseRoomForm(form), "string");
 });
 
 test("goal and outcome input stay within the room contract", () => {
